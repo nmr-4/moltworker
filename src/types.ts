@@ -29,6 +29,10 @@ export interface ClawdbotEnv {
   R2_ACCESS_KEY_ID?: string;
   R2_SECRET_ACCESS_KEY?: string;
   CF_ACCOUNT_ID?: string; // Cloudflare account ID for R2 endpoint
+  // Browser Rendering binding for CDP shim
+  BROWSER?: Fetcher;
+  CDP_SECRET?: string; // Shared secret for CDP endpoint authentication
+  WORKER_URL?: string; // Public URL of the worker (for CDP endpoint)
 }
 
 /**

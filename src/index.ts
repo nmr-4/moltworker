@@ -27,7 +27,7 @@ import type { AppEnv, ClawdbotEnv } from './types';
 import { CLAWDBOT_PORT } from './config';
 import { createAccessMiddleware } from './auth';
 import { ensureClawdbotGateway, syncToR2 } from './gateway';
-import { api, admin, debug } from './routes';
+import { api, admin, debug, cdp } from './routes';
 
 export { Sandbox };
 
@@ -99,6 +99,10 @@ app.use('/debug/*', async (c, next) => {
 });
 app.use('/debug/*', createAccessMiddleware({ type: 'json' }));
 app.route('/debug', debug);
+
+// Mount CDP shim routes (authenticated via shared secret, NOT Cloudflare Access)
+// This allows programmatic access from external tools
+app.route('/cdp', cdp);
 
 // All other routes: start clawdbot and proxy
 app.all('*', async (c) => {

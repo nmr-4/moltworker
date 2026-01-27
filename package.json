@@ -16,6 +16,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@cloudflare/puppeteer": "^1.0.5",
     "hono": "^4.11.6",
     "jose": "^6.1.0",
     "react": "^19.0.0",

@@ -60,6 +60,10 @@
   "triggers": {
     "crons": ["*/5 * * * *"],
   },
+  // Browser Rendering binding for CDP shim
+  "browser": {
+    "binding": "BROWSER",
+  },
   "vars": {
     "CF_ACCOUNT_ID": "d6d80af9d563479dd9d01a10c3c3a37a",
   },
@@ -72,6 +76,7 @@
   // - SLACK_BOT_TOKEN: (optional) Slack bot token
   // - SLACK_APP_TOKEN: (optional) Slack app token
   // - CLAWDBOT_GATEWAY_TOKEN: (optional) Token to protect gateway access, if unset device pairing will be used
+  // - CDP_SECRET: (optional) Shared secret for /cdp endpoint authentication
   //
   // R2 persistent storage secrets (required for data persistence across sessions):
   // - AWS_ACCESS_KEY_ID: R2 access key ID (from R2 API tokens)
