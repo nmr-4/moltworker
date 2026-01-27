@@ -11,6 +11,11 @@ import {
 } from '../api'
 import './DevicesPage.css'
 
+// Small inline spinner for buttons
+function ButtonSpinner() {
+  return <span className="btn-spinner" />
+}
+
 export default function DevicesPage() {
   const [pending, setPending] = useState<PendingDevice[]>([])
   const [paired, setPaired] = useState<PairedDevice[]>([])
@@ -138,6 +143,7 @@ export default function DevicesPage() {
             onClick={handleRestartGateway}
             disabled={restartInProgress}
           >
+            {restartInProgress && <ButtonSpinner />}
             {restartInProgress ? 'Restarting...' : 'Restart Gateway'}
           </button>
         </div>
@@ -164,6 +170,7 @@ export default function DevicesPage() {
                 onClick={handleApproveAll}
                 disabled={actionInProgress !== null}
               >
+                {actionInProgress === 'all' && <ButtonSpinner />}
                 {actionInProgress === 'all' ? 'Approving...' : `Approve All (${pending.length})`}
               </button>
             )}
@@ -234,6 +241,7 @@ export default function DevicesPage() {
                     onClick={() => handleApprove(device.requestId)}
                     disabled={actionInProgress !== null}
                   >
+                    {actionInProgress === device.requestId && <ButtonSpinner />}
                     {actionInProgress === device.requestId ? 'Approving...' : 'Approve'}
                   </button>
                 </div>

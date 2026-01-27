@@ -47,7 +47,7 @@ wss://your-worker.workers.dev/ws?token=YOUR_TOKEN
 
 **Important:** Even with a token, device pairing is still required in production. The token allows connections to proceed, but the Control UI will still require device approval unless you're in local dev mode.
 
-For local development only, set `CLAWDBOT_DEV_MODE=true` in `.dev.vars` to enable `allowInsecureAuth`, which bypasses device pairing entirely.
+For local development only, set `DEV_MODE=true` in `.dev.vars` to skip Cloudflare Access authentication and enable `allowInsecureAuth` (bypasses device pairing entirely).
 
 ## Setting Up the Admin UI
 
@@ -107,8 +107,8 @@ If you prefer more control, you can manually create an Access application:
 For local development, create a `.dev.vars` file with:
 
 ```bash
-LOCAL_DEV=true              # Skip Cloudflare Access authentication
-CLAWDBOT_DEV_MODE=true      # Enable allowInsecureAuth (bypasses device pairing)
+DEV_MODE=true               # Skip Cloudflare Access auth + bypass device pairing
+DEBUG_ROUTES=true           # Enable /debug/* routes (optional)
 ```
 
 ## Persistent Storage (R2)
@@ -153,11 +153,11 @@ Access the admin UI at `/_admin/` to:
 - Approve devices individually or all at once
 - View paired devices
 
-The admin UI requires Cloudflare Access authentication (or `LOCAL_DEV=true` for local development).
+The admin UI requires Cloudflare Access authentication (or `DEV_MODE=true` for local development).
 
 ## Debug Endpoints
 
-Debug endpoints are available at `/debug/*` (requires Cloudflare Access):
+Debug endpoints are available at `/debug/*` when enabled (requires `DEBUG_ROUTES=true` and Cloudflare Access):
 
 - `GET /debug/processes` - List all container processes
 - `GET /debug/logs?id=<process_id>` - Get logs for a specific process
@@ -195,7 +195,8 @@ npm run deploy
 | `CF_ACCESS_TEAM_DOMAIN` | Yes* | Cloudflare Access team domain (required for admin UI) |
 | `CF_ACCESS_AUD` | Yes* | Cloudflare Access application audience (required for admin UI) |
 | `CLAWDBOT_GATEWAY_TOKEN` | No | Gateway token for authentication (pass via `?token=` query param) |
-| `CLAWDBOT_DEV_MODE` | No | Set to `true` to enable `allowInsecureAuth` (local dev only) |
+| `DEV_MODE` | No | Set to `true` to skip CF Access auth + device pairing (local dev only) |
+| `DEBUG_ROUTES` | No | Set to `true` to enable `/debug/*` routes |
 | `AWS_ACCESS_KEY_ID` | No | R2 access key for persistent storage |
 | `AWS_SECRET_ACCESS_KEY` | No | R2 secret key for persistent storage |
 | `CF_ACCOUNT_ID` | No | Cloudflare account ID for R2 |

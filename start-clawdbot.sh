@@ -83,11 +83,12 @@ config.gateway.mode = 'local';
 // Try multiple formats to find what clawdbot expects
 config.gateway.trustedProxies = ['10.1.0.0'];
 
-// Set gateway token if provided (use auth.token format)
+// Set gateway token if provided
+// Token allows authenticated access, but device pairing still works for non-token connections
 if (process.env.CLAWDBOT_GATEWAY_TOKEN) {
     config.gateway.auth = config.gateway.auth || {};
     config.gateway.auth.token = process.env.CLAWDBOT_GATEWAY_TOKEN;
-    config.gateway.auth.mode = 'token';  // Token-only auth (no device pairing)
+    // Don't set auth.mode = 'token' as that disables device pairing entirely
 }
 
 // Only allow insecure auth for local dev (when CLAWDBOT_DEV_MODE=true)

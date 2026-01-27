@@ -10,9 +10,10 @@ export interface ClawdbotEnv {
   ANTHROPIC_API_KEY?: string;
   OPENAI_API_KEY?: string;
   CLAWDBOT_GATEWAY_TOKEN?: string;
-  CLAWDBOT_DEV_MODE?: string;
+
   CLAWDBOT_BIND_MODE?: string;
-  LOCAL_DEV?: string; // Set to 'true' to skip CF Access auth (for local development)
+  DEV_MODE?: string; // Set to 'true' for local dev (skips CF Access auth + clawdbot device pairing)
+  DEBUG_ROUTES?: string; // Set to 'true' to enable /debug/* routes
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_DM_POLICY?: string;
   DISCORD_BOT_TOKEN?: string;

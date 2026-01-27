@@ -99,6 +99,67 @@ debug.get('/processes', async (c) => {
   }
 });
 
+// GET /debug/gateway-api - Probe the clawdbot gateway HTTP API
+debug.get('/gateway-api', async (c) => {
+  const sandbox = c.get('sandbox');
+  const path = c.req.query('path') || '/';
+  const CLAWDBOT_PORT = 18789;
+  
+  try {
+    const url = `http://localhost:${CLAWDBOT_PORT}${path}`;
+    const response = await sandbox.containerFetch(new Request(url), CLAWDBOT_PORT);
+    const contentType = response.headers.get('content-type') || '';
+    
+    let body: string | object;
+    if (contentType.includes('application/json')) {
+      body = await response.json();
+    } else {
+      body = await response.text();
+    }
+    
+    return c.json({
+      path,
+      status: response.status,
+      contentType,
+      body,
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return c.json({ error: errorMessage, path }, 500);
+  }
+});
+
+// GET /debug/cli - Test clawdbot CLI commands
+debug.get('/cli', async (c) => {
+  const sandbox = c.get('sandbox');
+  const cmd = c.req.query('cmd') || 'clawdbot --help';
+  
+  try {
+    const proc = await sandbox.startProcess(cmd);
+    
+    // Wait longer for command to complete
+    let attempts = 0;
+    while (attempts < 30) {
+      await new Promise(r => setTimeout(r, 500));
+      if (proc.status !== 'running') break;
+      attempts++;
+    }
+
+    const logs = await proc.getLogs();
+    return c.json({
+      command: cmd,
+      status: proc.status,
+      exitCode: proc.exitCode,
+      attempts,
+      stdout: logs.stdout || '',
+      stderr: logs.stderr || '',
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return c.json({ error: errorMessage, command: cmd }, 500);
+  }
+});
+
 // GET /debug/logs - Returns container logs for debugging
 debug.get('/logs', async (c) => {
   const sandbox = c.get('sandbox');

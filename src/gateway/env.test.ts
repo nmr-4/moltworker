@@ -72,13 +72,14 @@ describe('buildEnvVars', () => {
     expect(result.CLAWDBOT_CONFIG_PATH).toBeUndefined();
   });
 
-  it('includes dev mode and bind mode when set', () => {
+  it('maps DEV_MODE to CLAWDBOT_DEV_MODE for container', () => {
     const env = createEnv({
-      CLAWDBOT_DEV_MODE: 'true',
+      DEV_MODE: 'true',
       CLAWDBOT_BIND_MODE: 'lan',
     });
     const result = buildEnvVars(env, false);
     
+    // DEV_MODE is passed to container as CLAWDBOT_DEV_MODE
     expect(result.CLAWDBOT_DEV_MODE).toBe('true');
     expect(result.CLAWDBOT_BIND_MODE).toBe('lan');
   });

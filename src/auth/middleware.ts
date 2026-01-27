@@ -13,10 +13,10 @@ export interface AccessMiddlewareOptions {
 }
 
 /**
- * Check if running in local development mode
+ * Check if running in development mode (skips CF Access auth)
  */
-export function isLocalDev(env: ClawdbotEnv): boolean {
-  return env.LOCAL_DEV === 'true';
+export function isDevMode(env: ClawdbotEnv): boolean {
+  return env.DEV_MODE === 'true';
 }
 
 /**
@@ -42,8 +42,8 @@ export function createAccessMiddleware(options: AccessMiddlewareOptions) {
   const { type, redirectOnMissing = false } = options;
 
   return async (c: Context<AppEnv>, next: Next) => {
-    // Skip auth in local dev mode
-    if (isLocalDev(c.env)) {
+    // Skip auth in dev mode
+    if (isDevMode(c.env)) {
       c.set('accessUser', { email: 'dev@localhost', name: 'Dev User' });
       return next();
     }
