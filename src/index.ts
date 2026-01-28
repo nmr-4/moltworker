@@ -163,12 +163,17 @@ app.use('*', async (c, next) => {
   await next();
 });
 
-// Middleware: Cloudflare Access authentication for all routes except /cdp/*
+// Middleware: Cloudflare Access authentication for all routes except /cdp/* and static assets
 app.use('*', async (c, next) => {
   const url = new URL(c.req.url);
   
   // Skip auth for CDP routes (uses shared secret auth)
   if (url.pathname.startsWith('/cdp')) {
+    return next();
+  }
+  
+  // Skip auth for admin UI static assets (CSS, JS need to load for login redirect to work)
+  if (url.pathname.startsWith('/_admin/assets/')) {
     return next();
   }
   

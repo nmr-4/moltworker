@@ -8,10 +8,7 @@ import { createAccessMiddleware } from '../auth';
  */
 const admin = new Hono<AppEnv>();
 
-// Middleware: Verify Cloudflare Access JWT for admin UI (redirect if missing)
-admin.use('*', createAccessMiddleware({ type: 'html', redirectOnMissing: true }));
-
-// Serve admin UI static files via ASSETS binding
+// Serve admin UI static assets WITHOUT auth (CSS, JS, etc. need to load for the login redirect to work)
 // Assets are built to dist/client with base "/_admin/"
 // The built assets are at /assets/* in the dist folder, so we need to rewrite the path
 admin.get('/assets/*', async (c) => {
@@ -22,7 +19,11 @@ admin.get('/assets/*', async (c) => {
   return c.env.ASSETS.fetch(new Request(assetUrl.toString(), c.req.raw));
 });
 
-// Serve index.html for all other admin routes (SPA)
+// Middleware: Verify Cloudflare Access JWT for admin UI pages (redirect if missing)
+// This is applied AFTER the /assets/* route so static assets are public
+admin.use('*', createAccessMiddleware({ type: 'html', redirectOnMissing: true }));
+
+// Serve index.html for all other admin routes (SPA) - protected by Access
 admin.get('*', async (c) => {
   const url = new URL(c.req.url);
   return c.env.ASSETS.fetch(new Request(new URL('/index.html', url.origin).toString()));
