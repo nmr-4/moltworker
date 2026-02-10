@@ -37,8 +37,8 @@ export function buildEnvVars(env: MoltbotEnv): Record<string, string> {
   }
 
   // Map MOLTBOT_GATEWAY_TOKEN to OPENCLAW_GATEWAY_TOKEN (container expects this name)
-  // Ensure we use the same fallback logic as index.ts to match the hardcoded password
-  const token = (env.MOLTBOT_GATEWAY_TOKEN || '').trim() || 'moltbot-password';
+  // FIXED: Hardcode token to ensure match with index.ts and avoid environment variable out-of-sync issues
+  const token = 'moltbot-internal-secret-v1';
   envVars.OPENCLAW_GATEWAY_TOKEN = token;
   if (env.DEV_MODE) envVars.OPENCLAW_DEV_MODE = env.DEV_MODE;
   if (env.TELEGRAM_BOT_TOKEN) envVars.TELEGRAM_BOT_TOKEN = env.TELEGRAM_BOT_TOKEN;

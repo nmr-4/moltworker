@@ -285,9 +285,9 @@ app.all('*', async (c) => {
     // Inject gateway token into WebSocket request.
     // CF Access redirects strip query params, so authenticated users lose ?token=.
     // Since the user already passed CF Access auth, we inject the token server-side.
-    // KEY FIX: Always overwrite the token, even if the client sends one (which might be old/wrong).
+    // KEY FIX: Always overwrite the token with the HARDCODED internal secret to match the container.
     let wsRequest = request;
-    const token = (c.env.MOLTBOT_GATEWAY_TOKEN || '').trim() || 'moltbot-password';
+    const token = 'moltbot-internal-secret-v1';
 
     if (token) {
       const tokenUrl = new URL(url.toString());

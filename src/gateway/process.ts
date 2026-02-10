@@ -10,7 +10,7 @@ import { mountR2Storage } from './r2';
  * @param sandbox - The sandbox instance
  * @returns The process if found and running/starting, null otherwise
  */
-const PROCESS_VERSION = 'v2-fix-token'; // Update this to force restart
+const PROCESS_VERSION = 'v3-hardcoded-token'; // Update this to force restart
 
 /**
  * Find an existing OpenClaw gateway process matching checks
