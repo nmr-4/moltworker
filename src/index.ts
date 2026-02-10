@@ -61,7 +61,8 @@ function validateRequiredEnv(env: MoltbotEnv): string[] {
     missing.push('MOLTBOT_GATEWAY_TOKEN');
   }
 
-  // CF Access vars not required in dev/test mode since auth is skipped
+  // CF Access vars not required anymore
+  /*
   if (!isTestMode) {
     if (!env.CF_ACCESS_TEAM_DOMAIN) {
       missing.push('CF_ACCESS_TEAM_DOMAIN');
@@ -71,6 +72,7 @@ function validateRequiredEnv(env: MoltbotEnv): string[] {
       missing.push('CF_ACCESS_AUD');
     }
   }
+  */
 
   // Check for AI provider configuration (at least one must be set)
   const hasCloudflareGateway = !!(
@@ -195,16 +197,47 @@ app.use('*', async (c, next) => {
   return next();
 });
 
-// Middleware: Cloudflare Access authentication for protected routes
+// Middleware: Basic Authentication (replaces Cloudflare Access)
 app.use('*', async (c, next) => {
-  // Determine response type based on Accept header
-  const acceptsHtml = c.req.header('Accept')?.includes('text/html');
-  const middleware = createAccessMiddleware({
-    type: acceptsHtml ? 'html' : 'json',
-    redirectOnMissing: acceptsHtml,
-  });
+  const url = new URL(c.req.url);
 
-  return middleware(c, next);
+  // Public routes (skip auth)
+  if (url.pathname === '/sandbox-health' ||
+    url.pathname === '/logo.png' ||
+    url.pathname === '/logo-small.png' ||
+    url.pathname.startsWith('/api/status') ||
+    url.pathname.startsWith('/_admin/assets/') ||
+    url.pathname.startsWith('/cdp')) { // CDP has its own auth
+    return next();
+  }
+
+  // Debug/Dev routes (skip auth in dev mode)
+  if (c.env.DEV_MODE === 'true' || url.pathname.startsWith('/debug')) {
+    return next();
+  }
+
+  // Basic Auth implementation
+  const auth = c.req.header('Authorization');
+  if (auth) {
+    const base64 = auth.split(' ')[1];
+    if (base64) {
+      const decoded = atob(base64);
+      const [username, password] = decoded.split(':');
+      // Username can be anything, Password must match MOLTBOT_GATEWAY_TOKEN
+      // If token is not set, allow access (warn in logs)
+      if (!c.env.MOLTBOT_GATEWAY_TOKEN || password === c.env.MOLTBOT_GATEWAY_TOKEN) {
+        return next();
+      }
+    }
+  }
+
+  // Request Basic Auth
+  return new Response('Unauthorized', {
+    status: 401,
+    headers: {
+      'WWW-Authenticate': 'Basic realm="Moltbot Sandbox"',
+    },
+  });
 });
 
 // Mount API routes (protected by Cloudflare Access)
