@@ -223,16 +223,19 @@ app.use('*', async (c, next) => {
     if (base64) {
       const decoded = atob(base64);
       const [username, password] = decoded.split(':');
+
+      const expectedToken = (c.env.MOLTBOT_GATEWAY_TOKEN || '').trim();
+
       // Username can be anything, Password must match MOLTBOT_GATEWAY_TOKEN
-      // If token is not set, allow access (warn in logs)
-      if (!c.env.MOLTBOT_GATEWAY_TOKEN || password === c.env.MOLTBOT_GATEWAY_TOKEN) {
+      // If token is not set, allow access
+      if (!expectedToken || password === expectedToken) {
         return next();
       }
     }
   }
 
   // Request Basic Auth
-  return new Response('Unauthorized', {
+  return new Response('Unauthorized: Password did not match.', {
     status: 401,
     headers: {
       'WWW-Authenticate': 'Basic realm="Moltbot Sandbox"',
