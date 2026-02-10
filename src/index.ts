@@ -329,9 +329,11 @@ app.all('*', async (c) => {
     // CF Access redirects strip query params, so authenticated users lose ?token=.
     // Since the user already passed CF Access auth, we inject the token server-side.
     let wsRequest = request;
-    if (c.env.MOLTBOT_GATEWAY_TOKEN && !url.searchParams.has('token')) {
+    const token = (c.env.MOLTBOT_GATEWAY_TOKEN || '').trim() || 'moltbot-password';
+
+    if (token && !url.searchParams.has('token')) {
       const tokenUrl = new URL(url.toString());
-      tokenUrl.searchParams.set('token', c.env.MOLTBOT_GATEWAY_TOKEN);
+      tokenUrl.searchParams.set('token', token);
       wsRequest = new Request(tokenUrl.toString(), request);
     }
 
