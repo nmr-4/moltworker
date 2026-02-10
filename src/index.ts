@@ -282,13 +282,14 @@ app.all('*', async (c) => {
       console.log('[WS] URL:', url.pathname + redactedSearch);
     }
 
-    // Inject gateway token into WebSocket request if not already present.
+    // Inject gateway token into WebSocket request.
     // CF Access redirects strip query params, so authenticated users lose ?token=.
     // Since the user already passed CF Access auth, we inject the token server-side.
+    // KEY FIX: Always overwrite the token, even if the client sends one (which might be old/wrong).
     let wsRequest = request;
     const token = (c.env.MOLTBOT_GATEWAY_TOKEN || '').trim() || 'moltbot-password';
 
-    if (token && !url.searchParams.has('token')) {
+    if (token) {
       const tokenUrl = new URL(url.toString());
       tokenUrl.searchParams.set('token', token);
       wsRequest = new Request(tokenUrl.toString(), request);
