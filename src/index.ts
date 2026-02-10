@@ -197,51 +197,8 @@ app.use('*', async (c, next) => {
   return next();
 });
 
-// Middleware: Basic Authentication (replaces Cloudflare Access)
-app.use('*', async (c, next) => {
-  const url = new URL(c.req.url);
-
-  // Public routes (skip auth)
-  if (url.pathname === '/sandbox-health' ||
-    url.pathname === '/logo.png' ||
-    url.pathname === '/logo-small.png' ||
-    url.pathname.startsWith('/api/status') ||
-    url.pathname.startsWith('/_admin/assets/') ||
-    url.pathname.startsWith('/cdp')) { // CDP has its own auth
-    return next();
-  }
-
-  // Debug/Dev routes (skip auth in dev mode)
-  if (c.env.DEV_MODE === 'true' || url.pathname.startsWith('/debug')) {
-    return next();
-  }
-
-  // Basic Auth implementation
-  const auth = c.req.header('Authorization');
-  if (auth) {
-    const base64 = auth.split(' ')[1];
-    if (base64) {
-      const decoded = atob(base64);
-      const [username, password] = decoded.split(':');
-
-      const expectedToken = (c.env.MOLTBOT_GATEWAY_TOKEN || '').trim();
-
-      // Username can be anything, Password must match MOLTBOT_GATEWAY_TOKEN OR hardcoded backup
-      // If token is not set, allow access
-      if (!expectedToken || password === expectedToken || password === 'moltbot-password') {
-        return next();
-      }
-    }
-  }
-
-  // Request Basic Auth
-  return new Response('Unauthorized: Password did not match.', {
-    status: 401,
-    headers: {
-      'WWW-Authenticate': 'Basic realm="Moltbot Sandbox"',
-    },
-  });
-});
+// Middleware: Basic Authentication removed (Reverted to Cloudflare Access)
+// app.use('*', async (c, next) => { ... });
 
 // Mount API routes (protected by Cloudflare Access)
 app.route('/api', api);

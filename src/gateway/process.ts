@@ -59,32 +59,14 @@ export async function ensureMoltbotGateway(sandbox: Sandbox, env: MoltbotEnv): P
   await mountR2Storage(sandbox, env);
 
   // Check if gateway is already running or starting
+  // Check if gateway is already running
   const existingProcess = await findExistingMoltbotProcess(sandbox);
   if (existingProcess) {
-    console.log(
-      'Found existing gateway process:',
-      existingProcess.id,
-      'status:',
-      existingProcess.status,
-    );
-
-    // Always use full startup timeout - a process can be "running" but not ready yet
-    // (e.g., just started by another concurrent request). Using a shorter timeout
-    // causes race conditions where we kill processes that are still initializing.
+    console.log('[Fix] Killing existing process to enforce new env vars/token...');
     try {
-      console.log('Waiting for gateway on port', MOLTBOT_PORT, 'timeout:', STARTUP_TIMEOUT_MS);
-      await existingProcess.waitForPort(MOLTBOT_PORT, { mode: 'tcp', timeout: STARTUP_TIMEOUT_MS });
-      console.log('Gateway is reachable');
-      return existingProcess;
-      // eslint-disable-next-line no-unused-vars
-    } catch (_e) {
-      // Timeout waiting for port - process is likely dead or stuck, kill and restart
-      console.log('Existing process not reachable after full timeout, killing and restarting...');
-      try {
-        await existingProcess.kill();
-      } catch (killError) {
-        console.log('Failed to kill process:', killError);
-      }
+      await existingProcess.kill();
+    } catch (e) {
+      console.error('Failed to kill existing process:', e);
     }
   }
 
